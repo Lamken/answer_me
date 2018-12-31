@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+// import drizzle functions and contract artifact
+import { Drizzle, generateStore } from "drizzle";
+import MyStringStore from "./contracts/MyStringStore.json";
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
@@ -11,9 +14,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 // Learn more about service workers: http://bit.ly/CRA-PWA
 serviceWorker.unregister();
 
-// import drizzle functions and contract artifact
-import { Drizzle, generateStore } from "drizzle";
-import MyStringStore from "./contracts/MyStringStore.json";
+
 
 // let drizzle know what contracts we want
 const options = { contracts: [MyStringStore] };
