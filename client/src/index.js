@@ -21,3 +21,7 @@ const options = { contracts: [MyStringStore] };
 // setup the drizzle store and drizzle
 const drizzleStore = generateStore(options);
 const drizzle = new Drizzle(options, drizzleStore);
+
+// pass in the drizzle instance
+ReactDOM.render(<App drizzle={drizzle} />, document.getElementById("root"));
+registerServiceWorker();
