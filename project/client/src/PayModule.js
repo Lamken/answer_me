@@ -4,12 +4,12 @@ import { Table, Button,Panel } from 'react-bootstrap';
 
 class AcceptForm extends React.Component {
 render() {
-        var requestor = this.props.delegateInfo[0];
+        var questioner = this.props.delegateInfo[0];
         var destination = this.props.delegateInfo[1];
-        var pay = this.props.delegateInfo[2];
+        var price = this.props.delegateInfo[2];
         var accept = this.props.accept;
-        if (pay) {
-            pay = pay.toNumber();
+        if (price) {
+            price = price.toNumber();
         }
 
 
@@ -26,22 +26,22 @@ render() {
 
               <div class="form-group" id="questionContent">
                 <label>问题描述</label>
-                <div type="text" id="acceptinfo">{requestor}</div>
+                <div type="text" id="acceptinfo">{questioner}</div>
               </div>
               
               <div class="form-group" id="answerContent">
                 <label>回答内容</label>
-                <div type="text" id="acceptinfo">{destination}</div>
+                <div type="text" id="acceptinfo">{answer}</div>
               </div> 
               
-              <div class="form-group" id="payButton">
+              <div class="form-group" id="priceButton">
                 <label>支付酬劳</label>
                 <div type="text" id="acceptinfo">{code}</div>
               </div>
 
               <div id="acceptbutton">
                 <Button bsStyle="success" class="form-control" onClick={(event) => {
-                this.props.confirmReceived(this.props.delegator);
+                this.props.confirmAnswer(this.props.delegator);
                 }}>采用该回答</Button>
               </div>
                 
