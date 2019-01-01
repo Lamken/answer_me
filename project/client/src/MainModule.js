@@ -1,4 +1,4 @@
-// 用户阅读已有问题及提问的界面
+// 用户阅读首页问题及提问的界面
 import React from 'react'
 import {
   Form,
@@ -28,17 +28,16 @@ class MainModule extends React.Component {
       <button type="button" class="Button TopstoryPageHeader-askButton Button--primary Button--blue">提问</button>
 
 
-      <div itemprop="zhihu:question" itemtype="http://schema.org/Question" itemscope="">
-    <meta itemprop="url" content="https://www.zhihu.com/question/31844108" />
-    <meta itemprop="name" content="为什么很多程序员使用thinkpad而不是同等价位的游戏本？" /><a target="_blank" data-za-detail-view-element_name="Title"
+    <meta itemprop="url"  />
+    <meta itemprop="name" content="" /><a target="_blank" data-za-detail-view-element_name="Title"
         data-za-detail-view-id="2812" href="/question/31844108/answer/546043687"></a></div>
 
-      <div class="RichContent-inner"><span class="RichText ztext CopyrightRichText-richText" itemprop="text"></span><button type="button" class="Button ContentItem-more Button--plain">阅读全文<span
-            style="display: inline-flex; align-items: center;">​<svg class="Zi Zi--ArrowDown ContentItem-arrowIcon"
-                fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                <path d="M12 13L8.285 9.218a.758.758 0 0 0-1.064 0 .738.738 0 0 0 0 1.052l4.249 4.512a.758.758 0 0 0 1.064 0l4.246-4.512a.738.738 0 0 0 0-1.052.757.757 0 0 0-1.063 0L12.002 13z"
-                    fill-rule="evenodd"></path>
-            </svg></span></button></div>
+    <div class="RichContent-inner"><span class="RichText ztext CopyrightRichText-richText" itemprop="text">
+          style="display: inline-flex; align-items: center;">​<svg class="Zi Zi--ArrowDown ContentItem-arrowIcon"
+              fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
+              <path d="M12 13L8.285 9.218a.758.758 0 0 0-1.064 0 .738.738 0 0 0 0 1.052l4.249 4.512a.758.758 0 0 0 1.064 0l4.246-4.512a.738.738 0 0 0 0-1.052.757.757 0 0 0-1.063 0L12.002 13z"
+                  fill-rule="evenodd"></path>
+          </svg></span></button></div>
     )
     }
 }
