@@ -2,19 +2,19 @@ pragma solidity ^ 0.5 .0;
 
 contract Project {
     // ----------------------合约变量-----------------------------------
-    address payable public delegator; // 提问者
-    address payable public requestor; // 回答者
+    address payable public requestor; // 提问者
+    address payable public respondent; // 回答者
 
     enum State { // 问题状态
         Open,
         Close
     }
+
     mapping(string => address[]) questionInfo; // 问题详情
     mapping(address => State) questionState; // 问题状态
     mapping(address => string) anwerInfo; // 回答内容
     mapping(address => uint) price; // 问题的酬劳
 
-    uint32 transactionCount = 0;
 
     struct QuestionTransaction {
         address payable questioner; // 提问者
@@ -27,6 +27,8 @@ contract Project {
 
     // 用队列存储提问交易，最新的交易放到队尾
     mapping(uint => QuestionTransaction) transationList;
+    uint32 transactionCount = 0; // 队尾，即交易数量
+
     // ------------------------end 合约变量---------------------------------
 
     // ------------------------得到合约信息---------------------------------
