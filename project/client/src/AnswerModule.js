@@ -1,3 +1,4 @@
+// 用户回答问题的界面
 import React from 'react'
 import {Button,Panel} from "react-bootstrap";
 
@@ -34,7 +35,6 @@ class ChoiceForm extends React.Component {
       </Panel.Body>
     </Panel>
     
-   
     )
   }
 }

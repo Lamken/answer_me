@@ -1,3 +1,4 @@
+// 问题编辑的界面
 import React from 'react'
 import {Form,FormGroup,Col,ControlLabel,FormControl,Button,Panel} from 'react-bootstrap'
 class PublishingModule extends React.Component {
@@ -7,7 +8,7 @@ class PublishingModule extends React.Component {
     return (
       <Panel bsStyle="primary" id="releasepannel">
       <Panel.Heading>
-        <Panel.Title componentClass="h3">发布一个问题</Panel.Title>
+        <Panel.Title componentClass="h3">提问</Panel.Title>
       </Panel.Heading>
       <Panel.Body>
       <Form horizontal onSubmit={(event) => {
