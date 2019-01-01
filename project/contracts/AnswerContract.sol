@@ -1,260 +1,120 @@
-pragma solidity ^0.5.0;
+pragma solidity ^ 0.5 .0;
 
 contract Project {
+    // ----------------------合约变量-----------------------------------
+    address payable public delegator; // 提问者
+    address payable public requestor; // 回答者
 
-    // 委托人
-    address payable public delegator;
-    // 发送请求者
-    address payable public requestor;
-    // 交易状态
-    enum State { Created, Locked, Inactive }
-    // 所有委托信息
-    mapping(string => address[]) delegateInfo;
-    // 所有委托的交易状态
-    mapping(address => State) delegateState;
-    // 委托人的送货地点
-    mapping(address => string) destinationInfo;
-    // 委托信息的具体交易码，进行权限控制访问
-    mapping (address => string) secretInfo;
-    // 发起者支付的金额
-    mapping (address => uint) valueInfo;
-    // 委托规定的时间
-    uint public txLimit;
+    enum State { // 问题状态
+        Open,
+        Close
+    }
+    mapping(string => address[]) questionInfo; // 问题详情
+    mapping(address => State) questionState; // 问题状态
+    mapping(address => string) anwerInfo; // 回答内容
+    mapping(address => uint) price; // 问题的酬劳
 
-    uint32 delegationCount = 0;
+    uint32 transactionCount = 0;
 
-    struct Delegation{
-         // 委托人
-        address payable delegator;
-        // 发送请求者
-        address payable requestor;
-        uint pay;
-        string code;
-        string source;
-        string destination;
+    struct QuestionTransaction {
+        address payable questioner; // 提问者
+        address payable respondent; // 回答者
+        uint price; // 问题价格
+        string question; // 问题内容
+        string answer; // 回答内容
         State state;
     }
-    mapping (uint => Delegation) delegateList;
 
+    // 用队列存储提问交易，最新的交易放到队尾
+    mapping(uint => QuestionTransaction) transationList;
+    // ------------------------end 合约变量---------------------------------
 
-    function getdelegator(uint id)
-        public 
-        view 
-        returns(address)
-    {
-        return delegateList[id].delegator;
+    // ------------------------得到合约信息---------------------------------
+    function getTransaction(uint id) public view returns(address) {
+        //  根据问题id得到问题合约的地址
+        return TransationList[id];
     }
 
-    function getrequestor(uint id)
-        public 
-        view 
-        returns(address)
-    {
-        return delegateList[id].requestor;
+    function getQuesioner(uint id) public view returns(address) {
+        // 根据id得到提问者的钱包地址
+        return transationList[id].questioner;
     }
 
-    function getCode(uint id)
-        public 
-        view 
-        returns(string memory)
-    {
-        return delegateList[id].code;
+    function getRespondent(uint id) public view returns(string memory) {
+        // 根据id得到提回答者的钱包地址
+        return transationList[id].respondent;
     }
 
-    function getSource(uint id)
-        public 
-        view 
-        returns(string memory)
-    {
-        return delegateList[id].source;
+    function getPrice(uint id) public view returns(uint) {
+        // 根据id得到该问题的酬劳
+        return transationList[id].price;
     }
 
-    function getDestination(uint id)
-        public 
-        view 
-        returns(string memory)
-    {
-        return delegateList[id].destination;
+    function getQuestion(uint id) public view returns(uint) {
+        // 根据id得到该问题的内容
+        return transationList[id].question;
     }
 
-    function getPay(uint id)
-        public 
-        view 
-        returns(uint)
-    {
-        return delegateList[id].pay;
+    function getAnswer(uint id) public view returns(uint) {
+        // 根据id得到该问题的回答
+        return transationList[id].answer;
     }
 
-    function getDeleCount() 
-        public 
-        view 
-        returns(uint)
-    {
-        return delegationCount;
+    function getTransactionCount() public view returns(uint) {
+        // 现有问题数目
+        return transactionCount;
     }
+    // ------------------------end 得到合约信息---------------------------------
 
-    modifier onlyAfter(uint _time) { 
-        require(now > _time,"The tx has not beyond the time limit!"); 
-        _; 
-    }
-    
-    // 判断是否在交易的创建状态
-    modifier inCreateState(State _state) {
+    // ----------------------判断回答模块-----------------------------------
+
+    // 判断是否在问题的可回答状态
+    modifier isQuestionOpened(State _state) {
         require(
-            _state == State.Created,
-            "Invalid state."
+            _state == State.Open,
+            "Error state."
         );
         _;
     }
 
-    // 判断是否在交易的锁定状态
-    modifier inLockedState(State _state) {
+    // 判断是否在问题的关闭状态
+    modifier isQuestionClosed(State _state) {
         require(
-            _state == State.Locked,
-            "Invalid state."
+            _state == State.Close,
+            "Error state."
         );
         _;
     }
+    // ----------------------end 判断回答模块-----------------------------------
 
-    // 判断是否是请求者 
-    modifier onlyRequestor(){
-        require(msg.sender==requestor,"Only requestor can call this!");
-        _;
-    }
-
-    modifier condition(bool _condition) {
-        require(_condition,"You should first pay the deposit for 5 ether!");
-        _;
-    }
-
-    // 发布委托信息
-    // delegate:取货地点,destination:送货地点,secret:取件码
-    function release(string memory delegate,string memory destination,string memory secret) 
-        public 
-        payable
-    {
-        // 委托人支付的金额必须大于1个以太币
-        require(msg.value>=1 ether, "Value has to be greater than 1 ether.");
+    // -----------------------提问逻辑处理模块----------------------------------
+    function publish(string memory delegate, uint memory price) public payable {
+        require(price >= 1 ether, "支付的金额必须大于1个以太币"); // 支付的金额必须大于1个以太币
         valueInfo[msg.sender] = msg.value;
         delegateInfo[delegate].push(msg.sender);
-        // 更改交易状态为初始
-        delegateState[msg.sender] = State.Created;
         destinationInfo[msg.sender] = destination;
-        secretInfo[msg.sender] = secret;
-
-        delegationCount = delegationCount + 1;
-        delegateList[delegationCount].requestor = msg.sender;
-        delegateList[delegationCount].pay = msg.value;
-        delegateList[delegationCount].code =  secret;
-        delegateList[delegationCount].source = delegate;
-        delegateList[delegationCount].destination = destination;
-        delegateList[delegationCount].state = State.Created;
+        transactionCount = transactionCount + 1; // 提问合约放到队尾
+        transationList[transactionCount].requestor = msg.sender;
+        transationList[transactionCount].pay = msg.value;
+        transationList[transactionCount].respondent = msg.sender; // 默认为回答者为提问者本身
+        transationList[transactionCount].state = State.Open; // 提出的问题默认为开放编辑状态
     }
-    
+    // -----------------------end 提问逻辑处理模块----------------------------------
 
-    // 根据委托信息查询请求者和送货地点
-    function delegate(string memory s) 
-        public 
-        view 
-        // inCreateState(delegateState[delegateInfo[s][0]])
-        returns(address,string memory,uint){
-        address res;
-        for(uint i = 0;i< delegateInfo[s].length;i++){
-            res = delegateInfo[s][i];
-            // 保证交易处于初始状态
-            if(delegateState[delegateInfo[s][i]]==State.Created){
-                // 返回送货地点信息,发起者地址,和支付金额
-                return (res,destinationInfo[res],valueInfo[res]/(10**18));
-            }
-        }
-        delete res;
-        return (res,"No relative delegate infomation",0);
+    // -----------------------回答与接纳模块----------------------------------
+    // 回答问题
+    function answerQuestion(address payable addr) public payable {
+        answer = msg.answer; // 回答内容
+        respondent = addr;
+        return msg.answer;
     }
-    
-    function getSecretInfo(address addr) 
-        public 
-        view
-        returns(string memory)
-    {
-        return secretInfo[addr];
-    }
-    
 
-
-    // 接受请求者的委托请求，并得到具体取件码
-    function acceptDelegate(address payable addr) 
-        public 
-        // payable表示该动作需要支付以太币，支付的数量会累加到合约账户的余额。
-        payable
-        // 其他人没有接受委托
-        inCreateState(delegateState[addr])
-        // 押金
-        condition(msg.value == 5 ether)
-        returns(string memory)
-    {
-        require(msg.sender!=addr, "The delegator can not be requestor itself!");
-        delegator = msg.sender;
-        requestor = addr;
-        // 交易计时开始
-        txLimit = now + 60;
-        // 更改交易状态，不许反悔
-        delegateState[addr] = State.Locked;
-        // 返回取件码
-        // return secretInfo[addr];
-        return getSecretInfo(addr);
-    }
-    
-    // 请求者确认收货
-    function confirmReceived() 
-        public 
-        payable
-        onlyRequestor()
-        inLockedState(delegateState[requestor])
-    {   
+    // 提问者接纳回答
+    function confirmAnswer(uint questionId) public payable isQuestionOpened(questionTransation[questionId]) {
         // 更新交易状态为完成
-        delegateState[requestor] = State.Inactive;
-        // 将合约账户的余额返回给委托人，包括押金和请求者的支付金额
-        delegator.transfer(valueInfo[msg.sender]+5 ether);
+        questionTransation[questionId] = State.Close;
+        delegator.transfer(questionTransation[questionId].respondent + price ether);
     }
- 
-    // 发起者未收到货
-    function confirmNotReceived()
-        public
-        payable
-        onlyRequestor()
-        inLockedState(delegateState[requestor])
-        onlyAfter(txLimit)
-    {
-        // 更新交易状态为完成
-        delegateState[requestor] = State.Inactive;
-        // 当交易超时时，发起者得到委托人的押金和之前付的value
-        requestor.transfer(valueInfo[msg.sender]+5 ether);
-    }
+    // -----------------------end 回答与接纳模块----------------------------------
 
-    function getContractBal() public view returns(uint) {
-        return address(this).balance;
-    }
-
-    function getDelegation(string memory s) public view returns(uint){
-        address res;
-        for(uint i = 0;i< delegateInfo[s].length;i++){
-            res = delegateInfo[s][i];
-            // 保证交易处于初始状态
-            if(delegateState[delegateInfo[s][i]]==State.Created){
-                // 返回送货地点信息,发起者地址,和支付金额
-                return valueInfo[res]/(10**18);
-            }
-        }
-        delete res;
-        return 0;
-    }
-
-    function getDelegator() public view returns(address){
-        return delegator;
-    }
-
-    function getRequestor() public view returns(address){
-        return requestor;
-    }
 }
-
